@@ -1821,11 +1821,8 @@ cdef class mpf_base(mpnumber):
         """
         return libmp.to_fixed(self._mpf_, prec)
 
-    def __getstate__(self):
-        return libmp.to_pickable(self._mpf_)
-
-    def __setstate__(self, val):
-        self._mpf_ = libmp.from_pickable(val)
+    def __reduce__(self):
+        return self.__class__, (self._mpf_,)
 
 
 cdef class mpf(mpf_base):
@@ -2046,7 +2043,7 @@ cdef class mpf(mpf_base):
         """
         return MPF_to_double(&self.value, False)
 
-    def __getstate__(self):
+    def __reduce__(self):
         """
         Support pickling ::
 
@@ -2054,17 +2051,7 @@ cdef class mpf(mpf_base):
             sage: loads(dumps(mpf(3))) == mpf(3)
             True
         """
-        return libmp.to_pickable(self._mpf_)
-
-    def __setstate__(self, val):
-        """
-        Support pickling ::
-
-            sage: from mpmath import mpf
-            sage: loads(dumps(mpf(3))) == mpf(3)
-            True
-        """
-        self._mpf_ = libmp.from_pickable(val)
+        return self.__class__, (self._mpf_,)
 
     def __cinit__(self):
         """
@@ -2298,11 +2285,8 @@ cdef class constant(mpf_base):
         """
         return libmp.to_fixed(self._mpf_, prec)
 
-    def __getstate__(self):
-        return libmp.to_pickable(self._mpf_)
-
-    def __setstate__(self, val):
-        self._mpf_ = libmp.from_pickable(val)
+    def __reduce__(self):
+        return self.__class__, (self._mpf_,)
 
     # WHY is this method not inherited from the base class by Cython?
     def __hash__(self):
@@ -2382,16 +2366,6 @@ cdef class mpc(mpnumber):
             True
         """
         return (mpc, (), self._mpc_)
-
-    def __setstate__(self, val):
-        """
-        Support pickling ::
-
-            sage: from mpmath import mpc
-            sage: loads(dumps(mpc(1,3))) == mpc(1,3)
-            True
-        """
-        self._mpc_ = val[0], val[1]
 
     def __repr__(self):
         """
